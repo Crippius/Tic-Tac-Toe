@@ -1,51 +1,79 @@
 #include <stdio.h>
+#include <unistd.h>
 
-void print_tris(int *);
-char x_or_o(int);
-int check_victory(int *);
-int count_0s(int *);
+void print_tris(int *); // Prints the board
+
+char x_or_o(int, int); // Converts 0, 1, 2 into '(number of cell)', 'X' and 'O'
+
+int check_victory(int *); // Checks if a win/draw condition was met
+
+int count_0s(int *); // Counts the number of 0s on board, used in check_victory
 
 int main() {
     int table[9] = {0, 0, 0, 
-                    2, 1, 0, 
-                    1, 2, 1};
-    int i = 0, number_of_turns = 0;
-    print_tris(table);
-    while (check_victory(table) == 0) {
-        i=0;
-        number_of_turns++;
-        do{
-            printf("In which position do you want to put %c? ", x_or_o((number_of_turns%2)+1));
-            scanf("%d", &i);
-            if (table[i-1] != 0) printf("aaaaaoooooooooooo \n");
-        } while(i<1 || i>9 || table[i-1] != 0);
-        table[i-1] = (number_of_turns%2)+1;
+                    0, 0, 0, 
+                    0, 0, 0};
+    int i, number_of_turns; 
+    char rematch = 'y';
+
+    printf("Welcome to Tic-Tac-Toe!\n");
+    while (rematch == 'y') {
+        number_of_turns = 0; // Resetting variables
+        for (i=0; i<9; i++) 
+            table[i] = 0;
+        
         print_tris(table);
+        while (check_victory(table) == 0) {
+            i = 0;
+            number_of_turns++;
+            do {
+                printf("In which position do you want to put %c? ", x_or_o((number_of_turns % 2) + 1, 0));
+                scanf("%d", &i);
+                if (table[i - 1] != 0)
+                    printf("This cell already has a %c in it, please choose another one\n", x_or_o(table[i - 1], i-1));
+                if (i < 1 || i > 9)
+                    printf("Please choose one of the avaiable cells (Input a number from 1 to 9)\n");
+            } while (i < 1 || i > 9 || table[i - 1] != 0);
+            table[i - 1] = (number_of_turns % 2) + 1;
+            print_tris(table);
+        }
+        if (check_victory(table) == 1)
+            printf("X won!\n");
+        if (check_victory(table) == 2)
+            printf("O won!\n");
+        if (check_victory(table) == -1)
+            printf("Draw!\n");
+        if (check_victory(table) != 0) {
+            fflush(stdin);
+            do {
+                printf("Do you want a rematch? (y/n) ");
+                scanf("%c", &rematch);
+            } while (rematch != 'y' && rematch != 'n');
+        }
     }
-    if (check_victory(table) == 1) printf("X won yehhhhhhhhhh");
-    if (check_victory(table) == 2) printf("O won yehhhhhhhhhh");
-    if (check_victory(table) == -1) printf("draw :''''''''(");
-    if (check_victory(table) == 0) printf("WHAAAAAAAT????");
+    
+    printf("Thanks for playing!");
+    sleep(2);
     return 0;
 }
 
 void print_tris(int table[9]) {
 
     printf("         |         |         \n");
-    printf("    %c    |    %c    |    %c     \n", x_or_o(table[0]), x_or_o(table[1]), x_or_o(table[2]));
+    printf("    %c    |    %c    |    %c     \n", x_or_o(table[0], 0), x_or_o(table[1], 1), x_or_o(table[2], 2));
     printf("         |         |         \n");
     printf("____________________________\n");
     printf("         |         |         \n");
-    printf("    %c    |    %c    |   %c     \n", x_or_o(table[3]), x_or_o(table[4]), x_or_o(table[5]));
+    printf("    %c    |    %c    |   %c     \n", x_or_o(table[3], 3), x_or_o(table[4], 4), x_or_o(table[5], 5));
     printf("         |         |         \n");
     printf("____________________________\n");
     printf("         |         |         \n");
-    printf("    %c    |    %c    |   %c     \n", x_or_o(table[6]), x_or_o(table[7]), x_or_o(table[8]));
+    printf("    %c    |    %c    |   %c     \n", x_or_o(table[6], 6), x_or_o(table[7], 7), x_or_o(table[8], 8));
     printf("         |         |         \n");
 }
 
-char x_or_o(int n) {
-        return !n ? ' ' : n == 1 ? 'X' : 'O';
+char x_or_o(int n, int i) {
+        return !n ? '1'+ i : n == 1 ? 'X' : 'O';
     }
 
 int check_victory(int * table) {
